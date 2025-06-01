@@ -12,7 +12,7 @@ spec:
   - hosts:
     - jellyfin.stevedesktop.localdomain
     - audiobookshelf.stevedesktop.localdomain
-    - commafeed-service.stevedesktop.localdomain
+    - commafeed.stevedesktop.localdomain
     secretName: media-tls
   rules:
   - host: jellyfin.stevedesktop.localdomain
