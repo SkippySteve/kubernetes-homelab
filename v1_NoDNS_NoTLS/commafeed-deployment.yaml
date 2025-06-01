@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: commafeed-data-pv
+  namespace: media
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/run/desktop/mnt/host/c/Users/steve2/Kubernetes/Homelab/Data/commafeed"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: commafeed-data-pvc
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeName: commafeed-data-pv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: commafeed
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: commafeed
+  template:
+    metadata:
+      labels:
+        app: commafeed
+    spec:
+      containers:
+      - name: commafeed
+        image: ghcr.io/athou/commafeed:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Etc/UTC"
+        ports:
+        - containerPort: 8082
+        volumeMounts:
+        - mountPath: /commafeed/data
+          name: data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: commafeed-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: commafeed-service
+  namespace: media
+spec:
+  selector:
+    app: commafeed
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8082
+    nodePort: 30082
+  type: NodePort
