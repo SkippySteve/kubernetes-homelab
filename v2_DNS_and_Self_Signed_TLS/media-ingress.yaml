@@ -1,0 +1,47 @@
+# DONT FORGET TO CHANGE HOSTS FILE TO POINT SUBDOMAINS LOCALLY
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: media-ingress
+  namespace: media
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - jellyfin.stevedesktop.localdomain
+    - audiobookshelf.stevedesktop.localdomain
+    - commafeed-service.stevedesktop.localdomain
+    secretName: media-tls
+  rules:
+  - host: jellyfin.stevedesktop.localdomain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jellyfin-service
+            port:
+              number: 80
+  - host: audiobookshelf.stevedesktop.localdomain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: audiobookshelf-service
+            port:
+              number: 80
+  - host: commafeed.stevedesktop.localdomain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: commafeed-service
+            port:
+              number: 80

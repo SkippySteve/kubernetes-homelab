@@ -1,2 +1,4 @@
 # Ignore Data directory containing configs and things like cache
 /Data/*
+*.key
+*.crt
