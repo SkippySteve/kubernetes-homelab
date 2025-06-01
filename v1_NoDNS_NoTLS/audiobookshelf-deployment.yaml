@@ -25,6 +25,19 @@ spec:
     path: "/run/desktop/mnt/host/c/Users/steve2/Audio"
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: audiobookshelf-metadata-pv
+  namespace: media
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/run/desktop/mnt/host/c/Users/steve2/Kubernetes/Homelab/Data/audiobookshelf/metadata"
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: audiobookshelf-config-pvc
@@ -51,6 +64,20 @@ spec:
       storage: 100Gi
   storageClassName: ""
   volumeName: audiobookshelf-audiobooks-pv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-metadata-pvc
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeName: audiobookshelf-metadata-pv
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -84,6 +111,8 @@ spec:
           name: config
         - mountPath: /audiobooks
           name: audiobooks
+        - mountPath: /metadata
+          name: metadata
       volumes:
       - name: config
         persistentVolumeClaim:
@@ -91,6 +120,9 @@ spec:
       - name: audiobooks
         persistentVolumeClaim:
           claimName: audiobookshelf-audiobooks-pvc
+      - name: metadata
+        persistentVolumeClaim:
+          claimName: audiobookshelf-metadata-pvc
 ---
 apiVersion: v1
 kind: Service
